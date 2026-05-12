@@ -1,0 +1,23 @@
+import customtkinter as ctk
+
+class CoutureApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title = "couture app"
+        self.geometry("1000x700")
+        ctk.set_appearance_mode("light")
+        self.configure(fg_color="#e6d3a3")
+
+        self.character_frame = ctk.CTkFrame(self, width=300, height=500, fg_color="white")
+        self.character_frame.place(relx=0.5, rely=0.5, anchor="center")
+
+        self.graph_frame = ctk.CTkFrame(self, width = 300, height = 600, fg_color="pink")
+        self.graph_frame.place(relx=0.1, rely=0.5, anchor="center")
+
+        self.book_frame = ctk.CTkFrame(self, width = 200, height = 300, fg_color="blue")
+        self.book_frame.place(relx=0.8, rely=0.8, anchor="center")
+
+
+if __name__ == "__main__":
+    app = CoutureApp()
+    app.mainloop()
