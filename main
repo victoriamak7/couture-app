@@ -17,6 +17,19 @@ class CoutureApp(ctk.CTk):
         self.book_frame = ctk.CTkFrame(self, width = 200, height = 300, fg_color="blue")
         self.book_frame.place(relx=0.8, rely=0.8, anchor="center")
 
+        self.brand_market_data = { #value multiplier
+            "Hermes": 130.0,
+            "Louis Vuitton": 32.0,
+            "Chanel": 60.0,
+            "YSL": 30.0,
+            "Miu Miu": 50.00,
+            "Dior": 45.0,
+            "Givenchy": 42.0,
+            "Loro Piana": 47.0,
+            "Auralee": 45.0,
+            "Yohji Yamamoto": 60.0
+        }
+
 
 if __name__ == "__main__":
     app = CoutureApp()
