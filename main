@@ -1,3 +1,4 @@
+from PIL import Image
 import customtkinter as ctk
 
 class CoutureApp(ctk.CTk):
@@ -8,27 +9,67 @@ class CoutureApp(ctk.CTk):
         ctk.set_appearance_mode("light")
         self.configure(fg_color="#e6d3a3")
 
-        self.character_frame = ctk.CTkFrame(self, width=300, height=500, fg_color="white")
-        self.character_frame.place(relx=0.5, rely=0.5, anchor="center")
+        closet_raw = Image.open("closet.png")
+        self.closet_img = ctk.CTkImage(light_image=closet_raw, size=(500, 900))
 
-        self.graph_frame = ctk.CTkFrame(self, width = 300, height = 600, fg_color="pink")
-        self.graph_frame.place(relx=0.1, rely=0.5, anchor="center")
+        self.closet_frame = ctk.CTkFrame(self, width = 300, height = 600, fg_color="transparent")
+        self.closet_frame.place(relx=0.2, rely=0.6, anchor="center")
 
-        self.book_frame = ctk.CTkFrame(self, width = 200, height = 300, fg_color="blue")
-        self.book_frame.place(relx=0.8, rely=0.8, anchor="center")
+        self.closet_label = ctk.CTkLabel(self.closet_frame, image=self.closet_img, text = "")
+        self.closet_label.pack(fill="both", expand=True)
+
+        character_raw = Image.open("character.png")
+        self.character_img = ctk.CTkImage(light_image=character_raw, size=(400, 900))
+
+        self.character_frame = ctk.CTkFrame(self, width=300, height=500, fg_color="transparent")
+        self.character_frame.place(relx=0.5, rely=0.7, anchor="center")
+
+        self.character_label = ctk.CTkLabel(self.character_frame, image=self.character_img, text = "")
+        self.character_label.pack(fill="both", expand=True)
+
+        book_raw = Image.open("book.png")
+        self.book_img = ctk.CTkImage(light_image=book_raw, size=(100, 200))
+
+        self.book_frame = ctk.CTkFrame(self, width = 200, height = 300, fg_color="transparent")
+        self.book_frame.place(relx=0.94, rely=0.9, anchor="center")
+
+        self.book_label = ctk.CTkLabel(self.book_frame, image=self.book_img, text = "")
+        self.book_label.pack(fill="both", expand=True)
+
+
+        graph_raw = Image.open("graph.png")
+        self.graph_img = ctk.CTkImage(light_image=graph_raw, size=(600, 600))
+
+        self.graph_frame = ctk.CTkFrame(self, width=300, height=300, fg_color="transparent")
+        self.graph_frame.place(relx=0.8, rely=0.3, anchor="center")
+
+        self.graph_label = ctk.CTkLabel(self.graph_frame, image=self.graph_img, text = "")
+        self.graph_label.pack(fill="both", expand=True)
 
         self.brand_market_data = { #value multiplier
             "Hermes": 130.0,
             "Louis Vuitton": 32.0,
             "Chanel": 60.0,
-            "YSL": 30.0,
+            "Vivienne Westwood": 30.0,
             "Miu Miu": 50.00,
             "Dior": 45.0,
-            "Givenchy": 42.0,
-            "Loro Piana": 47.0,
+            "Chloe": 42.0,
+            "Fendi": 47.0,
             "Auralee": 45.0,
             "Yohji Yamamoto": 60.0
         }
+
+        self.brand_choice = ctk.CTkComboBox(self, values = ["Hermes", "Louis Vuitton", "Chanel",
+                                                            "Vivienne Westwood", "Miu Miu", "Dior","Chloe", "Fendi", "Auralee",
+                                                            "Yohji Yamamoto"]) #dropdown
+
+        self.price_entry = ctk.CTkEntry(self, placeholder_text= "Enter retail price ") #entry retail price
+        self.calc_button = ctk.CTkButton(self, text="Appraise Asset", fg_color="#C5B358") #calc
+
+
+if __name__ == "__main__":
+    app = CoutureApp()
+    app.mainloop()
 
 
 if __name__ == "__main__":
