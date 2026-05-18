@@ -5,46 +5,40 @@ class CoutureApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title = "couture app"
-        self.geometry("1000x700")
+        self.geometry("1200x1000")
         ctk.set_appearance_mode("light")
-        self.configure(fg_color="#e6d3a3")
+
+
+        background_raw = Image.open("background.png")
+        self.background_img = ctk.CTkImage(light_image = background_raw, size= (1200,1000))
+
+        self.background_label = ctk.CTkLabel(self, image=self.background_img, text="", width=1200, height=1000)
+        self.background_label.place(x=0, y=0)
+
+
 
         closet_raw = Image.open("closet.png")
         self.closet_img = ctk.CTkImage(light_image=closet_raw, size=(500, 900))
+        self.closet_label = ctk.CTkLabel(self, image=self.closet_img, text = "", fg_color="transparent", bg_color="transparent")
+        self.closet_label.place(relx=0.2, rely=0.6, anchor="center")
 
-        self.closet_frame = ctk.CTkFrame(self, width = 300, height = 600, fg_color="transparent")
-        self.closet_frame.place(relx=0.2, rely=0.6, anchor="center")
-
-        self.closet_label = ctk.CTkLabel(self.closet_frame, image=self.closet_img, text = "")
-        self.closet_label.pack(fill="both", expand=True)
 
         character_raw = Image.open("character.png")
         self.character_img = ctk.CTkImage(light_image=character_raw, size=(400, 900))
+        self.character_label = ctk.CTkLabel(self, image = self.character_img, text = "", fg_color="transparent", bg_color="transparent")
+        self.character_label.place(relx=0.5, rely=0.7, anchor="center")
 
-        self.character_frame = ctk.CTkFrame(self, width=300, height=500, fg_color="transparent")
-        self.character_frame.place(relx=0.5, rely=0.7, anchor="center")
-
-        self.character_label = ctk.CTkLabel(self.character_frame, image=self.character_img, text = "")
-        self.character_label.pack(fill="both", expand=True)
 
         book_raw = Image.open("book.png")
         self.book_img = ctk.CTkImage(light_image=book_raw, size=(100, 200))
-
-        self.book_frame = ctk.CTkFrame(self, width = 200, height = 300, fg_color="transparent")
-        self.book_frame.place(relx=0.94, rely=0.9, anchor="center")
-
-        self.book_label = ctk.CTkLabel(self.book_frame, image=self.book_img, text = "")
-        self.book_label.pack(fill="both", expand=True)
+        self.book_label = ctk.CTkLabel(self, image=self.book_img, text = "", fg_color="transparent", bg_color="transparent")
+        self.book_label.place(relx=0.94, rely=0.9, anchor="center")
 
 
         graph_raw = Image.open("graph.png")
         self.graph_img = ctk.CTkImage(light_image=graph_raw, size=(600, 600))
-
-        self.graph_frame = ctk.CTkFrame(self, width=300, height=300, fg_color="transparent")
-        self.graph_frame.place(relx=0.8, rely=0.3, anchor="center")
-
-        self.graph_label = ctk.CTkLabel(self.graph_frame, image=self.graph_img, text = "")
-        self.graph_label.pack(fill="both", expand=True)
+        self.graph_label = ctk.CTkLabel(self, image=self.graph_img, text = "", fg_color="transparent", bg_color="transparent")
+        self.graph_label.place(relx=0.8, rely=0.3, anchor="center")
 
         self.brand_market_data = { #value multiplier
             "Hermes": 130.0,
@@ -65,11 +59,6 @@ class CoutureApp(ctk.CTk):
 
         self.price_entry = ctk.CTkEntry(self, placeholder_text= "Enter retail price ") #entry retail price
         self.calc_button = ctk.CTkButton(self, text="Appraise Asset", fg_color="#C5B358") #calc
-
-
-if __name__ == "__main__":
-    app = CoutureApp()
-    app.mainloop()
 
 
 if __name__ == "__main__":
