@@ -1,64 +1,195 @@
 from PIL import Image
 import customtkinter as ctk
 
+
 class CoutureApp(ctk.CTk):
+    def appraise_item(self):
+        """runs the valuation multiplier math and displays the image dynamically"""
+        try:
+            selected_brand = self.brand_choice.get()
+            retail_price = float(self.price_entry.get())
+
+            image_key = selected_brand
+
+            multiplier = self.brand_market_data.get(selected_brand, 1.0)
+            self.calculated_value = retail_price * multiplier
+
+            self.result_label.configure(
+                text=f"Asset appraised!\n{selected_brand} Market value: ${self.calculated_value:,.2f}",
+                text_color="#66BB6A"
+            )
+
+            if image_key in self.bag_images:
+                self.popup_preview_label.configure(image=self.bag_images[image_key])
+                self.popup_preview_label.place(relx=0.5, rely=0.5, anchor="center")
+            else:
+                self.popup_preview_label.place_forget() # Hide it if no image exists
+
+            self.buy_button.configure(state="normal", text="BUY ASSET", fg_color="#C5B358")
+        except ValueError:
+            self.result_label.configure(text="ERROR: enter a valid number!", text_color="#EF5350")
+            self.calculated_value = 0
+            self.buy_button.configure(state="disabled", fg_color="gray")
+            self.popup_preview_label.place_forget()
+
+    def buy_asset_action(self):
+        """deducts cash, saves to ledger, keeps the visualization clean """
+        brand = self.brand_choice.get()
+        cost = self.calculated_value
+
+        if self.current_cash >= cost:
+            self.current_cash -= cost
+            self.my_closet.append(brand)
+
+            self.display_text = self.generate_ticker_text()
+            self.ticker_label.configure(text=self.display_text)
+
+            self.popup_preview_label.place_forget()
+
+            self.result_label.configure(text=f"SUCCESS: Purchase {brand} Asset!", text_color="white")
+            self.buy_button.configure(state="disabled", text="Purchased!")
+        else:
+            self.result_label.configure(text="ERROR: Insufficient funds!", text_color="#EF5350")
+
+    def open_black_book(self):
+        self.active_popup = ctk.CTkToplevel(self)
+        self.active_popup.title("TBB")
+        self.active_popup.geometry("450x620")
+        self.active_popup.configure(fg_color="#1A2238")
+        self.active_popup.attributes("-topmost", True)
+
+        title = ctk.CTkLabel(self.active_popup, text="COUTURE CALCULATOR", text_color="#C5B358",
+                             font=("Helvetica", 20, "bold"))
+        title.pack(pady=15)
+
+        brand_list = list(self.brand_market_data.keys())
+        self.brand_choice = ctk.CTkComboBox(self.active_popup, values=brand_list, fg_color="white", text_color="black")
+        self.brand_choice.pack(pady=15)
+
+        self.price_entry = ctk.CTkEntry(self.active_popup, placeholder_text="Enter retail price ($)", fg_color="white",
+                                        text_color="black")
+        self.price_entry.pack(pady=15)
+
+        self.calc_button = ctk.CTkButton(self.active_popup, text="Appraise asset", fg_color="#C5B358",
+                                         text_color="black", font=("Helvetica", 12, "bold"),
+                                         command=self.appraise_item)
+        self.calc_button.pack(pady=15)
+
+        self.result_label = ctk.CTkLabel(self.active_popup, text="", text_color="white", font=("Helvetica", 16, "bold"))
+        self.result_label.pack(pady=15)
+
+        self.popup_preview_label = ctk.CTkLabel(self.active_popup, text="", fg_color="transparent")
+
+        self.buy_button = ctk.CTkButton(self.active_popup, text="BUY ASSET", fg_color="gray", state="disabled",
+                                        text_color="black", font=("Helvetica", 12, "bold"),
+                                        command=self.buy_asset_action)
+        self.buy_button.pack(side="bottom", pady=20)
+
+    def trigger_client_mission(self):
+        """ fires a luxury styling mission three seconds after startup """
+        mission_popup = ctk.CTkToplevel(self)
+        mission_popup.title("📩 New message")
+        mission_popup.geometry("400x260")
+        mission_popup.configure(fg_color="#1A2238")
+        mission_popup.attributes("-topmost", True)
+
+        sender = ctk.CTkLabel(mission_popup, text="FROM: SECRET VIP CLIENT (Kim V.)", text_color="#C5B358",
+                              font=("Helvetica", 14, "bold"))
+        sender.pack(pady=15)
+
+        message_text = "OMG hey! I need an authentic luxury bag for a\nsecret pop-up event tonight. 🤫\n\nBudget: $1100.\n\n Theme: Sparkles.\n Let's start shopping!"
+        msg_label = ctk.CTkLabel(mission_popup, text=message_text, text_color="white", font=("Helvetica", 12))
+        msg_label.pack(pady=10)
+
+        accept_btn = ctk.CTkButton(mission_popup, text="I'm on it!", fg_color="#C5B358", text_color="black",
+                                   command=mission_popup.destroy)
+        accept_btn.pack(pady=15)
+
+    def scroll_ticker(self):
+        self.display_text = self.display_text[1:] + self.display_text[0]
+        self.ticker_label.configure(text=self.display_text)
+        self.after(100, self.scroll_ticker)
+
+    def generate_ticker_text(self):
+        base_market = "COUTURE INDEX: $142.50 (+4.2%)   |   RMS (Hermès): €2,310 (-1.2%)   |   MC (LVMH): €780 (+0.8%)   |   "
+        cash_segment = f"CASH: ${self.current_cash:,.2f}   |   "
+        return (base_market + cash_segment) * 3
+
     def __init__(self):
         super().__init__()
-        self.title = "couture app"
+        self.title("couture app")
         self.geometry("1200x1000")
         ctk.set_appearance_mode("light")
+        self.configure(fg_color="#e6d3a3")
 
+        self.brand_market_data = {
+            "Hermes": 70.0, "Louis Vuitton": 22.0, "Chanel": 30.0,
+            "Vivienne Westwood": 20.0, "Miu Miu": 22.00, "Dior": 25.0,
+            "Chloe": 14.2, "Fendi": 14.7, "Cartier": 25.0, "Yohji Yamamoto": 13.0
+        }
 
-        background_raw = Image.open("background.png")
-        self.background_img = ctk.CTkImage(light_image = background_raw, size= (1200,1000))
+        self.current_cash = 100000.00
+        self.my_closet = []
+        self.calculated_value = 0
 
-        self.background_label = ctk.CTkLabel(self, image=self.background_img, text="", width=1200, height=1000)
-        self.background_label.place(x=0, y=0)
+        self.ticker_frame = ctk.CTkFrame(self, width=1600, height=40, fg_color="#1A2238", corner_radius=0)
+        self.ticker_frame.place(x=0, y=0)
 
-
+        self.display_text = self.generate_ticker_text()
+        self.ticker_label = ctk.CTkLabel(self.ticker_frame, text=self.display_text, text_color="#C5B358",
+                                         font=("Helvetica", 14, "bold"))
+        self.ticker_label.place(x=10, rely=0.5, anchor="w")
+        self.scroll_ticker()
 
         closet_raw = Image.open("closet.png")
         self.closet_img = ctk.CTkImage(light_image=closet_raw, size=(500, 900))
-        self.closet_label = ctk.CTkLabel(self, image=self.closet_img, text = "", fg_color="transparent", bg_color="transparent")
+        self.closet_label = ctk.CTkLabel(self, image=self.closet_img, text="", fg_color="transparent",
+                                         bg_color="transparent")
         self.closet_label.place(relx=0.2, rely=0.6, anchor="center")
-
 
         character_raw = Image.open("character.png")
         self.character_img = ctk.CTkImage(light_image=character_raw, size=(400, 900))
-        self.character_label = ctk.CTkLabel(self, image = self.character_img, text = "", fg_color="transparent", bg_color="transparent")
+        self.character_label = ctk.CTkLabel(self, image=self.character_img, text="", fg_color="transparent",
+                                            bg_color="transparent")
         self.character_label.place(relx=0.5, rely=0.7, anchor="center")
 
-
         book_raw = Image.open("book.png")
-        self.book_img = ctk.CTkImage(light_image=book_raw, size=(100, 200))
-        self.book_label = ctk.CTkLabel(self, image=self.book_img, text = "", fg_color="transparent", bg_color="transparent")
-        self.book_label.place(relx=0.94, rely=0.9, anchor="center")
-
+        self.book_img = ctk.CTkImage(light_image=book_raw, size=(150, 250))
+        self.book_button = ctk.CTkButton(self, image=self.book_img, text="", fg_color="transparent",
+                                         hover_color="#dfcd9f", width=150, height=250, command=self.open_black_book)
+        self.book_button.place(relx=0.90, rely=0.85, anchor="center")
 
         graph_raw = Image.open("graph.png")
         self.graph_img = ctk.CTkImage(light_image=graph_raw, size=(600, 600))
-        self.graph_label = ctk.CTkLabel(self, image=self.graph_img, text = "", fg_color="transparent", bg_color="transparent")
-        self.graph_label.place(relx=0.8, rely=0.3, anchor="center")
+        self.graph_label = ctk.CTkLabel(self, image=self.graph_img, text="", fg_color="transparent",
+                                        bg_color="transparent")
+        self.graph_label.place(relx=0.75, rely=0.4, anchor="center")
 
-        self.brand_market_data = { #value multiplier
-            "Hermes": 130.0,
-            "Louis Vuitton": 32.0,
-            "Chanel": 60.0,
-            "Vivienne Westwood": 30.0,
-            "Miu Miu": 50.00,
-            "Dior": 45.0,
-            "Chloe": 42.0,
-            "Fendi": 47.0,
-            "Auralee": 45.0,
-            "Yohji Yamamoto": 60.0
+        file_map = {
+            "Hermes": "hermes.png",
+            "Louis Vuitton": "imgbin-louis-vuitton-handbag-fashion-leather-louis-vuitton-Fi49PLudQg8NaAEluois.png",
+            "Chanel": "chanel.png",
+            "Cartier": "red.png",
+            "Dior": "bluedior.png",
+            "Miu Miu": "miumiu.png",
+            "Vivienne Westwood": "vivi.png",
+            "Chloe": "chloe.png",
+            "Fendi": "fendi.png",
+            "Yohji Yamamoto": "yohji.png"
         }
 
-        self.brand_choice = ctk.CTkComboBox(self, values = ["Hermes", "Louis Vuitton", "Chanel",
-                                                            "Vivienne Westwood", "Miu Miu", "Dior","Chloe", "Fendi", "Auralee",
-                                                            "Yohji Yamamoto"]) #dropdown
+        self.bag_images = {}
+        for brand, file_name in file_map.items():
+            try:
+                raw_img = Image.open(file_name)
+                # Note: Kept at 600x600 as you configured, but if it looks huge on screen,
+                # you can tweak it to size=(150, 150) right here!
+                scaled_img = ctk.CTkImage(light_image=raw_img, size=(600, 600))
+                self.bag_images[brand] = scaled_img
+            except FileNotFoundError:
+                print(f"⚠️ ERROR: create file named '{file_name}' inside your project folder.")
 
-        self.price_entry = ctk.CTkEntry(self, placeholder_text= "Enter retail price ") #entry retail price
-        self.calc_button = ctk.CTkButton(self, text="Appraise Asset", fg_color="#C5B358") #calc
+        self.after(3000, self.trigger_client_mission)
 
 
 if __name__ == "__main__":
