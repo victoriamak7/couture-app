@@ -49,7 +49,7 @@ class CoutureApp(ctk.CTk):
             self.result_label.configure(text=f"SUCCESS: Purchase {brand} Asset!", text_color="white")
             self.buy_button.configure(state="disabled", text="Purchased!")
         else:
-            self.result_label.configure(text="ERROR: Insufficient funds!", text_color="#EF5350")
+            self.result_label.configure(text="ERROR: UGHHHH, insufficient funds!", text_color="#EF5350")
 
     def open_black_book(self):
         self.active_popup = ctk.CTkToplevel(self)
