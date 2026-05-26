@@ -182,8 +182,6 @@ class CoutureApp(ctk.CTk):
         for brand, file_name in file_map.items():
             try:
                 raw_img = Image.open(file_name)
-                # Note: Kept at 600x600 as you configured, but if it looks huge on screen,
-                # you can tweak it to size=(150, 150) right here!
                 scaled_img = ctk.CTkImage(light_image=raw_img, size=(600, 600))
                 self.bag_images[brand] = scaled_img
             except FileNotFoundError:
