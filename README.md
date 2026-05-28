@@ -1,1 +1,1 @@
-A mix of vintage fashion with stock market
+Chanel meets Wall Street.
