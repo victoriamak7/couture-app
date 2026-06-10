@@ -1,0 +1,63 @@
+import numpy as np
+
+
+class LuxuryMarketEngine:
+    """
+    handles scientific calculations and data file input/output for the app.
+    """
+
+    def __init__(self, save_filename="save_data.txt"):
+        self.save_filename = save_filename
+
+        self.base_multipliers = {
+            "Hermes": 70.0,
+            "Louis Vuitton": 22.0,
+            "Chanel": 30.0,
+            "Cartier": 25.0,
+            "Dior": 25.0,
+            "Miu Miu": 22.00,
+            "Vivienne Westwood": 20.0,
+            "Chloe": 14.2,
+            "Fendi": 14.7,
+            "Yohji Yamamoto": 13.0
+        }
+
+    def calculate_valuation(self, brand, retail_price):
+        """
+        uses NumPy to simulate luxury economic volatility.
+        multiplies the retail price by a scientifically randomized trend factor.
+        """
+        base_mult = self.base_multipliers.get(brand, 1.0)
+
+        #generates a random normal distribution curve centered at 1.0 with a 5% standard deviation
+        trend_variance = np.random.normal(loc=1.0, scale=0.05)
+
+        final_multiplier = base_mult * trend_variance
+        return float(retail_price * final_multiplier)
+
+    def save_game_state(self, cash, closet_list):
+        """
+        writes the current player budget and owned inventory list to a local text file.
+        """
+        try:
+            with open(self.save_filename, "w", encoding="utf-8") as file:
+                file.write(f"{cash}\n")
+                file.write(",".join(closet_list) + "\n")
+            print("game state saved successfully.")
+        except IOError as e:
+            print(f"File Save Error: {e}")
+
+    def load_game_state(self):
+        """
+        reads the saved local file to restore player session records upon boot.
+        """
+        try:
+            with open(self.save_filename, "r", encoding="utf-8") as file:
+                lines = file.readlines()
+                cash = float(lines[0].strip())
+                closet_str = lines[1].strip()
+                closet_list = closet_str.split(",") if closet_str else []
+                return cash, closet_list
+        except (FileNotFoundError, IndexError, ValueError):
+            print("no valid save file found. initializing standard starting capital.")
+            return 100000.00, []  #default values if no file exists yet
