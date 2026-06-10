@@ -1,5 +1,6 @@
 from PIL import Image
 import customtkinter as ctk
+from engine import LuxuryMarketEngine
 
 
 class CoutureApp(ctk.CTk):
@@ -9,22 +10,21 @@ class CoutureApp(ctk.CTk):
             selected_brand = self.brand_choice.get()
             retail_price = float(self.price_entry.get())
 
-            image_key = selected_brand
-
-            multiplier = self.brand_market_data.get(selected_brand, 1.0)
-            self.calculated_value = retail_price * multiplier
+            #numpy math
+            self.calculated_value = self.market_engine.calculate_valuation(selected_brand, retail_price)
 
             self.result_label.configure(
                 text=f"Asset appraised!\n{selected_brand} Market value: ${self.calculated_value:,.2f}",
                 text_color="#66BB6A"
             )
 
-            if image_key in self.bag_images:
-                self.popup_preview_label.configure(image=self.bag_images[image_key])
+            if selected_brand in self.bag_images:
+                self.popup_preview_label.configure(image=self.bag_images[selected_brand])
                 self.popup_preview_label.place(relx=0.5, rely=0.5, anchor="center")
             else:
-                self.popup_preview_label.place_forget() # Hide it if no image exists
+                self.popup_preview_label.place_forget()
 
+            #unlocks the buy button cleanly
             self.buy_button.configure(state="normal", text="BUY ASSET", fg_color="#C5B358")
         except ValueError:
             self.result_label.configure(text="ERROR: enter a valid number!", text_color="#EF5350")
@@ -41,6 +41,10 @@ class CoutureApp(ctk.CTk):
             self.current_cash -= cost
             self.my_closet.append(brand)
 
+            #saves data instantly to disk using custom module
+            self.market_engine.save_game_state(self.current_cash, self.my_closet)
+
+            #updates the background scrolling text and visual string layout
             self.display_text = self.generate_ticker_text()
             self.ticker_label.configure(text=self.display_text)
 
@@ -49,7 +53,7 @@ class CoutureApp(ctk.CTk):
             self.result_label.configure(text=f"SUCCESS: Purchase {brand} Asset!", text_color="white")
             self.buy_button.configure(state="disabled", text="Purchased!")
         else:
-            self.result_label.configure(text="ERROR: UGHHHH, insufficient funds!", text_color="#EF5350")
+            self.result_label.configure(text="ERROR: Insufficient funds!", text_color="#EF5350")
 
     def open_black_book(self):
         self.active_popup = ctk.CTkToplevel(self)
@@ -62,7 +66,7 @@ class CoutureApp(ctk.CTk):
                              font=("Helvetica", 20, "bold"))
         title.pack(pady=15)
 
-        brand_list = list(self.brand_market_data.keys())
+        brand_list = list(self.market_engine.base_multipliers.keys())
         self.brand_choice = ctk.CTkComboBox(self.active_popup, values=brand_list, fg_color="white", text_color="black")
         self.brand_choice.pack(pady=15)
 
@@ -86,7 +90,6 @@ class CoutureApp(ctk.CTk):
         self.buy_button.pack(side="bottom", pady=20)
 
     def trigger_client_mission(self):
-        """ fires a luxury styling mission three seconds after startup """
         mission_popup = ctk.CTkToplevel(self)
         mission_popup.title("📩 New message")
         mission_popup.geometry("400x260")
@@ -122,15 +125,14 @@ class CoutureApp(ctk.CTk):
         ctk.set_appearance_mode("light")
         self.configure(fg_color="#e6d3a3")
 
-        self.brand_market_data = {
-            "Hermes": 70.0, "Louis Vuitton": 22.0, "Chanel": 30.0,
-            "Vivienne Westwood": 20.0, "Miu Miu": 22.00, "Dior": 25.0,
-            "Chloe": 14.2, "Fendi": 14.7, "Cartier": 25.0, "Yohji Yamamoto": 13.0
-        }
+        #instantiate secondary engine module
+        self.market_engine = LuxuryMarketEngine()
 
-        self.current_cash = 100000.00
-        self.my_closet = []
+        #loads previous file configurations safely
+        self.current_cash, self.my_closet = self.market_engine.load_game_state()
         self.calculated_value = 0
+
+        self.brand_market_data = self.market_engine.base_multipliers
 
         self.ticker_frame = ctk.CTkFrame(self, width=1600, height=40, fg_color="#1A2238", corner_radius=0)
         self.ticker_frame.place(x=0, y=0)
@@ -165,6 +167,7 @@ class CoutureApp(ctk.CTk):
                                         bg_color="transparent")
         self.graph_label.place(relx=0.75, rely=0.4, anchor="center")
 
+        #aligns to match the file list keys exactly
         file_map = {
             "Hermes": "hermes.png",
             "Louis Vuitton": "imgbin-louis-vuitton-handbag-fashion-leather-louis-vuitton-Fi49PLudQg8NaAEluois.png",
@@ -182,7 +185,8 @@ class CoutureApp(ctk.CTk):
         for brand, file_name in file_map.items():
             try:
                 raw_img = Image.open(file_name)
-                scaled_img = ctk.CTkImage(light_image=raw_img, size=(600, 600))
+                scaled_img = ctk.CTkImage(light_image=raw_img,
+                                          size=(130, 130))  # Sized comfortably for the popup preview window layout
                 self.bag_images[brand] = scaled_img
             except FileNotFoundError:
                 print(f"⚠️ ERROR: create file named '{file_name}' inside your project folder.")
