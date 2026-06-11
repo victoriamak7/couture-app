@@ -3,7 +3,7 @@ import numpy as np
 
 class LuxuryMarketEngine:
     """
-    handles scientific calculations and data file input/output for the app.
+    handles scientific calculations and data IO file for the app.
     """
 
     def __init__(self, save_filename="save_data.txt"):
